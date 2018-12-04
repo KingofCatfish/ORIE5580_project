@@ -73,7 +73,7 @@ class Transcation_Pool(object):
         self.pending_transaction += 1
         self.pending_amount += transaction.amount
         self.pending_fee += transaction.fee
-        heappush(self.pool, (-transaction.fee, transaction))
+        heappush(self.pool, (-transaction.fee, id(transaction), transaction))
         self.history.append(transaction)
 
     def generate_block(self, time):
@@ -86,7 +86,7 @@ class Transcation_Pool(object):
         for i in range(self.K):
             if len(self.pool) == 0:
                 return
-            fee, transaction = heappop(self.pool)
+            fee, id, transaction = heappop(self.pool)
             transaction.complete(time)
             self.pending_transaction -= 1
             self.pending_amount -= transaction.amount
@@ -294,7 +294,8 @@ if __name__ == '__main__':
         # Uniform transaction amount between 5, 25.
         amount = stats.uniform.rvs() * 20 + 5
         # Binomial transaction fee of 1% * amount or 2% * amount
-        fee = amount * (stats.binom.rvs(1, 0.5) / 100 + 0.01)
+        # fee = amount * (stats.binom.rvs(1, 0.5) / 100 + 0.01)
+        fee = 0.1
         # Exponential inter-arrival time of 2 transaction / minute
         inter_arrival_time = stats.expon.rvs(scale=0.5)
         return amount, fee, inter_arrival_time
